@@ -29,19 +29,19 @@ fn main() {
             .expect("Failed to find an appropriate adapter");
 
             // Create the logical device and command queue
-            let (device, queue) = block_on(
-                adapter.request_device(
-                    &wgpu::DeviceDescriptor {
+            let (device, queue) =
+                block_on(
+                    adapter.request_device(&wgpu::DeviceDescriptor {
                         label: None,
                         required_features: wgpu::Features::empty(),
                         // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
                         required_limits: wgpu::Limits::downlevel_webgl2_defaults()
                             .using_resolution(adapter.limits()),
-                    },
-                    None,
-                ),
-            )
-            .expect("Failed to create device");
+                        memory_hints: Default::default(),
+                        trace: wgpu::Trace::Off,
+                    }),
+                )
+                .expect("Failed to create device");
 
             // Load the shaders from disk
             let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -77,18 +77,21 @@ fn fs_main() -> @location(0) vec4<f32> {
                 layout: Some(&pipeline_layout),
                 vertex: wgpu::VertexState {
                     module: &shader,
-                    entry_point: "vs_main",
+                    entry_point: Some("vs_main"),
                     buffers: &[],
+                    compilation_options: Default::default(),
                 },
                 fragment: Some(wgpu::FragmentState {
                     module: &shader,
-                    entry_point: "fs_main",
+                    entry_point: Some("fs_main"),
                     targets: &[Some(swapchain_format.into())],
+                    compilation_options: Default::default(),
                 }),
                 primitive: wgpu::PrimitiveState::default(),
                 depth_stencil: None,
                 multisample: wgpu::MultisampleState::default(),
                 multiview: None,
+                cache: None,
             });
 
             let config = wgpu::SurfaceConfiguration {
@@ -159,6 +162,7 @@ fn fs_main() -> @location(0) vec4<f32> {
                                     load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
                                     store: wgpu::StoreOp::Store,
                                 },
+                                depth_slice: None,
                             })],
                             depth_stencil_attachment: None,
                             timestamp_writes: None,
