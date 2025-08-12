@@ -1,54 +1,96 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-    <style>
-      .logo.vite:hover {
-        filter: drop-shadow(0 0 2em #747bff);
-      }
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="/src/styles.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Manual Alpha Compositing via Windows API</title>
+		<script type="module" src="/src/main.ts" defer></script>
+		<style>
+			.logo.vite:hover {
+				filter: drop-shadow(0 0 2em #747bff);
+			}
 
-      .logo.typescript:hover {
-        filter: drop-shadow(0 0 2em #2d79c7);
-      }
-    </style>
-  </head>
+			.logo.typescript:hover {
+				filter: drop-shadow(0 0 2em #2d79c7);
+			}
 
-  <body>
-    <div class="container">
-      <h1>Welcome to Tauri!</h1>
+			body {
+				background: transparent !important;
+			}
 
-      <div class="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
-      </div>
+			.container {
+				background: transparent !important;
+			}
+		</style>
+	</head>
 
-      <p>Click on the Tauri logo to learn more about the framework</p>
+	<body>
+		<div class="container">
+			<h1>Windows API Manual Alpha Compositing</h1>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
+			<div class="row">
+				<a href="https://vitejs.dev" target="_blank">
+					<img
+						src="/src/assets/vite.svg"
+						class="logo vite"
+						alt="Vite logo"
+					/>
+				</a>
+				<a href="https://tauri.app" target="_blank">
+					<img
+						src="/src/assets/tauri.svg"
+						class="logo tauri"
+						alt="Tauri logo"
+					/>
+				</a>
+				<a href="https://www.typescriptlang.org/docs" target="_blank">
+					<img
+						src="/src/assets/typescript.svg"
+						class="logo typescript"
+						alt="typescript logo"
+					/>
+				</a>
+			</div>
 
-      <p id="greet-msg"></p>
-    </div>
-  </body>
+			<p>
+				True Manual Alpha Compositing using Windows UpdateLayeredWindow
+				API
+			</p>
+
+			<form class="row" id="greet-form">
+				<input id="greet-input" placeholder="Enter a name..." />
+				<button type="submit">Greet</button>
+			</form>
+
+			<p id="greet-msg"></p>
+
+			<div class="info">
+				<h3>How it works:</h3>
+				<ul>
+					<li>
+						WGPU renders to intermediate texture (not directly to
+						window)
+					</li>
+					<li>Texture data is read back to CPU memory</li>
+					<li>
+						Windows UpdateLayeredWindow API composites with proper
+						alpha
+					</li>
+					<li>
+						Premultiplied alpha ensures correct transparency
+						blending
+					</li>
+					<li>
+						CompositeAlphaMode::Opaque hardware limitation bypassed
+					</li>
+				</ul>
+				<p>
+					You should see properly transparent colored circles floating
+					over the desktop. This method works even when hardware only
+					supports opaque compositing.
+				</p>
+			</div>
+		</div>
+	</body>
 </html>
